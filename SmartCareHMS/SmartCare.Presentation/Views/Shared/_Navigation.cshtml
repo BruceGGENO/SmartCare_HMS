@@ -1,0 +1,66 @@
+﻿<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+
+        <a class="navbar-brand"
+           asp-controller="Home"
+           asp-action="Index">
+            SmartCare HMS
+        </a>
+
+        <div class="navbar-nav">
+
+            <a class="nav-link"
+               asp-controller="Home"
+               asp-action="Index">
+                Dashboard
+            </a>
+
+            @if (User.IsInRole("Receptionist"))
+            {
+                @* Receptionist navigation links go here *@
+            }
+
+            @if (User.IsInRole("Doctor"))
+            {
+                @* Doctor navigation links go here *@
+            }
+
+            @if (User.IsInRole("Nurse"))
+            {
+                @* Nurse navigation links go here *@
+            }
+
+            @if (User.IsInRole("Lab Technician"))
+            {
+                @* Laboratory navigation links go here *@
+            }
+
+            @if (User.IsInRole("Pharmacist"))
+            {
+                @* Pharmacy navigation links go here *@
+            }
+
+            @if (User.IsInRole("Billing Staff"))
+            {
+                @* Billing navigation links go here *@
+            }
+
+            @if (User.IsInRole("Hospital Admin"))
+            {
+                @* Administration navigation links go here *@
+            }
+
+            @if (User.IsInRole("Super Admin"))
+            {
+                @* System administration links go here *@
+            }
+
+            @if (User.IsInRole("Patient"))
+            {
+                @* Patient portal links go here *@
+            }
+
+        </div>
+
+    </div>
+</nav>

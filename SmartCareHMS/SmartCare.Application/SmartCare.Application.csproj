@@ -13,9 +13,6 @@
   <ItemGroup>
     <Folder Include="DTOs\" />
     <Folder Include="Common\" />
-    <Folder Include="Interfaces\Infrastructure\" />
-    <Folder Include="Interfaces\Security\" />
-    <Folder Include="Interfaces\Services\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
