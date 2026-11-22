@@ -1,7 +1,3 @@
-// Location: SmartCare.Infrastructure/Data/SqlExecutor.cs
-// Requires only the Microsoft.Data.SqlClient package (approved list).
-// Implements Bruce's ISqlExecutor exactly. Every call executes a STORED PROCEDURE.
-// Transactions: use BEGIN TRANSACTION ... COMMIT inside the stored procedure itself.
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
@@ -58,15 +54,12 @@ public sealed class SqlExecutor : ISqlExecutor
             return rows;
         });
 
-    // ---------------------------------------------------------------- internals
-
     private async Task<TResult> RunAsync<TResult>(
         string procedureName,
         IReadOnlyDictionary<string, object?>? parameters,
         CancellationToken cancellationToken,
         Func<SqlCommand, Task<TResult>> action)
     {
-        // Guard: this helper runs stored procedures only. A space means someone passed raw SQL.
         if (string.IsNullOrWhiteSpace(procedureName) || procedureName.Any(char.IsWhiteSpace))
             throw new ArgumentException(
                 "Pass a stored procedure name (e.g. \"dbo.sp_GetInvoice\"), not raw SQL.",
@@ -95,8 +88,6 @@ public sealed class SqlExecutor : ISqlExecutor
         return command;
     }
 
-    // Supported values: string, int/long/short/byte, bool, Guid, decimal, double, DateTime, byte[].
-    // Convert enums yourself (e.g. status.ToString()) before passing them in.
     private static SqlParameter CreateParameter(string name, object? value)
     {
         var parameterName = name.StartsWith('@') ? name : "@" + name;
@@ -104,9 +95,7 @@ public sealed class SqlExecutor : ISqlExecutor
         return value switch
         {
             null => new SqlParameter(parameterName, DBNull.Value),
-            // Money: must match DECIMAL(18,2) in the schema (agree with the schema owner).
             decimal d => new SqlParameter(parameterName, SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = d },
-            // Store UTC timestamps as DATETIME2.
             DateTime dt => new SqlParameter(parameterName, SqlDbType.DateTime2) { Value = dt },
             _ => new SqlParameter(parameterName, value)
         };
