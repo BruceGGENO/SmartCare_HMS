@@ -480,7 +480,3 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-
-# Uploaded documents live outside wwwroot and must never be committed (PHI).
-SmartCare.Presentation/App_Data/uploads/**
-!SmartCare.Presentation/App_Data/uploads/.gitkeep

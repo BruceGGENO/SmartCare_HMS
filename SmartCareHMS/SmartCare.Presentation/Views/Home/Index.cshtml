@@ -3,13 +3,6 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">SmartCare HMS</h1>
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <p>Signed in as <strong>@User.Identity.Name</strong>.</p>
-    }
-    else
-    {
-        <p><a asp-controller="Account" asp-action="Login">Sign in</a> to continue.</p>
-    }
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
