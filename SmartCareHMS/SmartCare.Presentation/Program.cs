@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using SmartCare.Application.Common;
 using SmartCare.Application.Interfaces.Infrastructure;
+using SmartCare.Application.Interfaces.Security;
 using SmartCare.Application.Interfaces.Services;
 using SmartCare.Infrastructure.Auditing;
+using SmartCare.Infrastructure.Authentication;
 using SmartCare.Infrastructure.Data;
 using SmartCare.Infrastructure.FileStorage;
 using SmartCare.Presentation.Middleware;
+using SmartCare.Presentation.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +30,39 @@ Directory.CreateDirectory(uploadsRoot);
 builder.Services.AddScoped<IFileStorage>(sp =>
     new LocalFileStorage(sp.GetRequiredService<ISqlExecutor>(), uploadsRoot, maxFileBytes));
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+builder.Services.AddSingleton<ICheckInCodeGenerator, CheckInCodeGenerator>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/Forbidden";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.Name = "SmartCare.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var role in AppRoles.All)
+        options.AddPolicy(role, policy => policy.RequireRole(role));
+});
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<IAuthService>()
+        .EnsureDemoUsersAsync();
+}
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -40,6 +77,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -1,0 +1,40 @@
+@model IReadOnlyList<SmartCare.Application.Interfaces.Security.OutboxMessage>
+@{
+    ViewData["Title"] = "Outbox (stub)";
+}
+
+<h1>Outbox</h1>
+<p class="text-muted">Stubbed SMS/email. Nothing is sent to a real gateway. OTP codes for the patient portal appear here.</p>
+
+@if (Model.Count == 0)
+{
+    <p>No messages yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>When (UTC)</th>
+                <th>Channel</th>
+                <th>To</th>
+                <th>Subject</th>
+                <th>Body</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td>@row.CreatedAtUtc.ToString("u")</td>
+                <td>@row.Channel</td>
+                <td>@row.Recipient</td>
+                <td>@row.Subject</td>
+                <td>@row.Body</td>
+                <td>@row.Status</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

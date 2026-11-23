@@ -1,0 +1,65 @@
+@model SmartCare.Presentation.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+
+<h1>Sign in</h1>
+<p class="text-muted">Staff use a password. Patients request a one-time code (OTP stub, not real SMS).</p>
+
+@if (TempData["Info"] is string info)
+{
+    <div class="alert alert-info">@info</div>
+}
+@if (TempData["DemoOtp"] is string demoOtp)
+{
+    <div class="alert alert-warning">Development only — OTP: <strong>@demoOtp</strong></div>
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2 class="h5">Staff</h2>
+        <form asp-action="Login" method="post">
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" autocomplete="username" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h5">Patient (OTP)</h2>
+        <form asp-action="RequestOtp" method="post" class="mb-3">
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-outline-primary">Send code</button>
+        </form>
+        <form asp-action="LoginOtp" method="post">
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="OtpCode" class="form-label"></label>
+                <input asp-for="OtpCode" class="form-control" inputmode="numeric" autocomplete="one-time-code" />
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in with code</button>
+        </form>
+    </div>
+</div>
+
+<p class="mt-4 small text-muted">
+    Demo users are seeded on first run. Password for staff accounts: <code>Demo@12345</code>
+    (receptionist, doctor, nurse, lab, pharmacist, billing, admin, superadmin).
+    Patient username: <code>patient</code>.
+</p>

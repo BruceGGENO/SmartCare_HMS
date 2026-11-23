@@ -1,21 +1,25 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartCare.Application.Interfaces.Infrastructure;
+using SmartCare.Application.Interfaces.Security;
 using SmartCare.Application.Interfaces.Services;
 
 namespace SmartCare.Presentation.Controllers
 {
-    // Add [Authorize] here after Raissa's login is on dev so downloads are not public.
+    [Authorize]
     public class DocumentsController : Controller
     {
         private const long RequestLimitBytes = 6 * 1024 * 1024;
 
         private readonly IFileStorage _files;
         private readonly IAuditLogger _audit;
+        private readonly ICurrentUser _currentUser;
 
-        public DocumentsController(IFileStorage files, IAuditLogger audit)
+        public DocumentsController(IFileStorage files, IAuditLogger audit, ICurrentUser currentUser)
         {
             _files = files;
             _audit = audit;
+            _currentUser = currentUser;
         }
 
         [HttpGet]
@@ -48,7 +52,7 @@ namespace SmartCare.Presentation.Controllers
                     file.ContentType,
                     entityType,
                     entityId,
-                    User.Identity?.Name,
+                    _currentUser.UserId,
                     cancellationToken);
 
                 await _audit.LogAsync(new AuditEvent
@@ -56,7 +60,7 @@ namespace SmartCare.Presentation.Controllers
                     Action = "Document.Create",
                     EntityType = string.IsNullOrWhiteSpace(entityType) ? "Document" : entityType,
                     EntityId = entityId ?? saved.DocumentId.ToString(),
-                    ActorUserId = User.Identity?.Name,
+                    ActorUserId = _currentUser.UserId,
                     Outcome = "Success"
                 }, cancellationToken);
 
@@ -87,7 +91,7 @@ namespace SmartCare.Presentation.Controllers
                         Action = "Document.Read",
                         EntityType = "Document",
                         EntityId = id.ToString(),
-                        ActorUserId = User.Identity?.Name,
+                        ActorUserId = _currentUser.UserId,
                         Outcome = "Success"
                     }, cancellationToken);
                 }
