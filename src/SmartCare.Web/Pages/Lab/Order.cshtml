@@ -1,0 +1,24 @@
+@page
+@model OrderModel
+@{ ViewData["Title"] = "Order a test"; }
+<h3 class="mb-3">Order a lab or radiology test</h3>
+<div class="card p-3" style="max-width:640px">
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Patient visit</label>
+            <select asp-for="EncounterId" class="form-select">
+                @foreach (var e in Model.Encounters)
+                {
+                    <option value="@e.Id">@e.Patient.FirstName @e.Patient.LastName (@e.Patient.Mrn)</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Test</label>
+            <select asp-for="TestId" class="form-select">
+                @foreach (var t in Model.Tests) { <option value="@t.Id">@t.Name (@t.Kind)</option> }
+            </select>
+        </div>
+        <button class="btn btn-primary">Send order to the lab</button>
+    </form>
+</div>

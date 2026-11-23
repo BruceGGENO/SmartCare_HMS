@@ -1,0 +1,111 @@
+@page "{id:guid}"
+@model ProcessModel
+@{ ViewData["Title"] = "Process order"; }
+@if (Model.Order is not null)
+{
+    var o = Model.Order;
+    var sample = o.Samples.FirstOrDefault();
+    var pending = o.Results.FirstOrDefault(r => r.ReleasedAtUtc == null);
+    var released = o.Results.FirstOrDefault(r => r.ReleasedAtUtc != null);
+
+    <h3 class="mb-1">@o.Test.Name <small class="text-muted">(@o.Test.Kind)</small></h3>
+    <p class="text-muted">@o.Patient.FirstName @o.Patient.LastName, @o.Patient.Mrn. Status: <span class="badge text-bg-secondary">@o.Status</span></p>
+
+    @if (o.Test.Kind == TestKind.Lab)
+    {
+        <div class="card p-3 mb-3">
+            <h5>Sample</h5>
+            @if (sample is null)
+            {
+                <form method="post" asp-page-handler="Collect" asp-route-id="@o.Id">
+                    <button class="btn btn-primary">Collect sample and create barcode</button>
+                </form>
+            }
+            else
+            {
+                <p class="mb-2">Barcode <strong>@sample.Barcode</strong>, status <span class="badge text-bg-info">@sample.Status</span></p>
+                @if (sample.Status != SampleStatus.Completed && User.IsInRole(Roles.LabTechnician))
+                {
+                    <form method="post" asp-page-handler="Advance" asp-route-id="@o.Id" asp-route-sampleId="@sample.Id">
+                        <button class="btn btn-outline-primary">Move to next step</button>
+                    </form>
+                }
+                <ul class="small text-muted mt-2 mb-0">
+                    @foreach (var h in sample.History.OrderBy(h => h.AtUtc)) { <li>@h.Status at @h.AtUtc.ToString("yyyy-MM-dd HH:mm") UTC</li> }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="card p-3 mb-3">
+        <h5>Result</h5>
+        @if (o.Test.ReferenceLow is not null || o.Test.ReferenceHigh is not null)
+        {
+            <p class="small text-muted">Normal range: @o.Test.ReferenceLow to @o.Test.ReferenceHigh @o.Test.Unit
+                @if (o.Test.CriticalLow is not null || o.Test.CriticalHigh is not null) { <text>. Critical below @o.Test.CriticalLow or above @o.Test.CriticalHigh.</text> }
+            </p>
+        }
+
+        @if (released is not null)
+        {
+            <p>
+                <strong>@released.Value @released.Unit</strong>
+                @if (released.IsCritical) { <span class="badge text-bg-danger">CRITICAL</span> }
+                else if (released.IsAbnormal) { <span class="badge text-bg-warning">Abnormal</span> }
+                <span class="text-muted small"> released @released.ReleasedAtUtc?.ToString("yyyy-MM-dd HH:mm") UTC</span>
+            </p>
+        }
+        else if (User.IsInRole(Roles.LabTechnician))
+        {
+            @if (pending is not null)
+            {
+                <p class="mb-2">
+                    Entered: <strong>@pending.Value @pending.Unit</strong>
+                    @if (pending.IsCritical) { <span class="badge text-bg-danger">CRITICAL</span> }
+                    else if (pending.IsAbnormal) { <span class="badge text-bg-warning">Abnormal</span> }
+                    <span class="badge text-bg-secondary">waiting for a second technician to verify</span>
+                </p>
+                <form method="post" asp-page-handler="Verify" asp-route-id="@o.Id" asp-route-resultId="@pending.Id" class="mb-3">
+                    <button class="btn btn-success">Verify and release</button>
+                    <small class="text-muted ms-2">You cannot verify a result you entered yourself.</small>
+                </form>
+            }
+            <form method="post" asp-page-handler="Result" asp-route-id="@o.Id" class="row g-2">
+                <div class="col-md-6"><input name="value" class="form-control" placeholder="@(o.Test.Kind == TestKind.Radiology ? "Impression / finding" : "Result value (numbers use a dot, e.g. 11.5)")" /></div>
+                <div class="col-md-3"><button class="btn btn-primary">@(pending is null ? "Save result" : "Correct result")</button></div>
+            </form>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No released result yet.</p>
+        }
+    </div>
+
+    @if (o.Test.Kind == TestKind.Radiology)
+    {
+        <div class="card p-3 mb-3">
+            <h5>Images and reports</h5>
+            <ul>
+                @foreach (var s in Model.Studies)
+                {
+                    <li>
+                        @if (s.FilePath is not null) { <a asp-page="/Lab/File" asp-route-studyId="@s.Id">Download file</a> }
+                        @if (s.DicomLink is not null) { <a href="@s.DicomLink" target="_blank" rel="noopener noreferrer">Open DICOM viewer</a> }
+                        @if (s.ReportText is not null) { <div class="small">@s.ReportText</div> }
+                    </li>
+                }
+                @if (!Model.Studies.Any()) { <li class="text-muted">Nothing attached yet.</li> }
+            </ul>
+            @if (User.IsInRole(Roles.LabTechnician))
+            {
+                <form method="post" enctype="multipart/form-data" asp-page-handler="Imaging" asp-route-id="@o.Id">
+                    <div class="mb-2"><input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" /></div>
+                    <div class="mb-2"><input name="dicomLink" class="form-control" placeholder="DICOM viewer link (optional)" /></div>
+                    <div class="mb-2"><textarea name="reportText" class="form-control" rows="3" placeholder="Report text (optional)"></textarea></div>
+                    <button class="btn btn-outline-primary">Attach</button>
+                </form>
+            }
+        </div>
+    }
+    <a class="btn btn-link" asp-page="/Lab/Index">Back to worklist</a>
+}

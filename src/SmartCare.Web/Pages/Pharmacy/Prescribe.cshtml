@@ -1,0 +1,42 @@
+@page
+@model PrescribeModel
+@{ ViewData["Title"] = "Prescribe"; }
+<h3 class="mb-3">Prescribe medicine</h3>
+<div class="card p-3">
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Patient visit</label>
+            <select asp-for="EncounterId" class="form-select">
+                @foreach (var e in Model.Encounters)
+                {
+                    <option value="@e.Id">@e.Patient.FirstName @e.Patient.LastName (@e.Patient.Mrn), started @e.StartedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</option>
+                }
+            </select>
+        </div>
+        <table class="table table-sm align-middle">
+            <thead><tr><th>Drug</th><th>Dose</th><th>Frequency</th><th>Duration</th><th>Quantity</th></tr></thead>
+            <tbody>
+            @for (var i = 0; i < Model.Rows.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="Rows[i].DrugId" class="form-select form-select-sm">
+                            <option value="">-</option>
+                            @foreach (var d in Model.Drugs) { <option value="@d.Id">@d.Name @d.Strength</option> }
+                        </select>
+                    </td>
+                    <td><input asp-for="Rows[i].Dose" class="form-control form-control-sm" placeholder="1 tablet" /></td>
+                    <td><input asp-for="Rows[i].Frequency" class="form-control form-control-sm" placeholder="3 times a day" /></td>
+                    <td><input asp-for="Rows[i].Duration" class="form-control form-control-sm" placeholder="5 days" /></td>
+                    <td><input asp-for="Rows[i].QuantityPrescribed" type="number" class="form-control form-control-sm" /></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <div class="mb-3">
+            <label class="form-label">Allergy override reason (only needed if the system warns about an allergy)</label>
+            <input asp-for="OverrideReason" class="form-control" />
+        </div>
+        <button class="btn btn-primary">Save prescription</button>
+    </form>
+</div>

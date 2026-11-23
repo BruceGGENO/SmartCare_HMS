@@ -1,0 +1,51 @@
+@page
+@model ResultsModel
+@{ ViewData["Title"] = "Lab results"; }
+<h3 class="mb-3">Lab results</h3>
+
+<div class="card p-3 mb-3">
+    <h5>Notifications</h5>
+    <table class="table table-sm align-middle mb-0">
+        @foreach (var n in Model.Notifications)
+        {
+            <tr class="@(n.RequiresAcknowledgment && n.AcknowledgedAtUtc is null ? "table-danger" : "")">
+                <td>@n.CreatedAtUtc.ToString("MM-dd HH:mm")</td>
+                <td><strong>@n.Title</strong><div class="small">@n.Message</div></td>
+                <td class="text-end">
+                    @if (n.RequiresAcknowledgment && n.AcknowledgedAtUtc is null)
+                    {
+                        <form method="post" asp-page-handler="Acknowledge" asp-route-notificationId="@n.Id">
+                            <button class="btn btn-sm btn-danger">I have seen this critical value</button>
+                        </form>
+                    }
+                    else if (n.AcknowledgedAtUtc is not null) { <span class="badge text-bg-success">acknowledged</span> }
+                </td>
+            </tr>
+        }
+        @if (!Model.Notifications.Any()) { <tr><td class="text-muted">No notifications.</td></tr> }
+    </table>
+</div>
+
+<div class="card p-3">
+    <h5>Released results of tests you ordered</h5>
+    <table class="table table-sm align-middle mb-0">
+        <thead><tr><th>Released</th><th>Patient</th><th>Test</th><th>Result</th><th>Normal range</th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.Results)
+        {
+            <tr>
+                <td>@r.ReleasedAtUtc?.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@r.LabOrder.Patient.FirstName @r.LabOrder.Patient.LastName <small class="text-muted">@r.LabOrder.Patient.Mrn</small></td>
+                <td>@r.LabOrder.Test.Name</td>
+                <td>
+                    <strong>@r.Value @r.Unit</strong>
+                    @if (r.IsCritical) { <span class="badge text-bg-danger">CRITICAL</span> }
+                    else if (r.IsAbnormal) { <span class="badge text-bg-warning">Abnormal</span> }
+                </td>
+                <td>@(r.ReferenceLow is null && r.ReferenceHigh is null ? "-" : $"{r.ReferenceLow} to {r.ReferenceHigh}")</td>
+            </tr>
+        }
+        @if (!Model.Results.Any()) { <tr><td colspan="5" class="text-muted">No released results yet.</td></tr> }
+        </tbody>
+    </table>
+</div>

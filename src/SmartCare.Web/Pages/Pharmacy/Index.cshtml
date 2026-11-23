@@ -1,0 +1,79 @@
+@page
+@model IndexModel
+@{ ViewData["Title"] = "Pharmacy"; }
+<h3 class="mb-3">Pharmacy</h3>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card p-3">
+            <h5>Stock levels</h5>
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>Drug</th><th class="text-end">Available</th><th class="text-end">Reorder level</th><th class="text-end">Expired on shelf</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Stock)
+                {
+                    <tr>
+                        <td>@s.Drug.Name @s.Drug.Strength</td>
+                        <td class="text-end">@s.Available</td>
+                        <td class="text-end">@s.Drug.ReorderLevel</td>
+                        <td class="text-end">@s.Expired</td>
+                        <td>
+                            @if (s.IsLow) { <span class="badge text-bg-danger">Reorder @s.Drug.ReorderQuantity</span> }
+                            else { <span class="badge text-bg-success">OK</span> }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Stock.Any()) { <tr><td colspan="5" class="text-muted">No drugs yet. Add them under Drugs.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card p-3 mb-3">
+            <h5>Near expiry (next @PharmacyService.NearExpiryDays days)</h5>
+            <table class="table table-sm mb-0">
+                @foreach (var b in Model.NearExpiry)
+                {
+                    <tr><td>@b.Drug.Name</td><td>@b.BatchNumber</td><td>@b.ExpiryDate.ToString("yyyy-MM-dd")</td><td class="text-end">@b.QuantityOnHand</td></tr>
+                }
+                @if (!Model.NearExpiry.Any()) { <tr><td class="text-muted">Nothing is about to expire.</td></tr> }
+            </table>
+        </div>
+        <div class="card p-3">
+            <h5>Expired (cannot be dispensed)</h5>
+            <table class="table table-sm mb-0">
+                @foreach (var b in Model.Expired)
+                {
+                    <tr><td>@b.Drug.Name</td><td>@b.BatchNumber</td><td>@b.ExpiryDate.ToString("yyyy-MM-dd")</td><td class="text-end">@b.QuantityOnHand</td></tr>
+                }
+                @if (!Model.Expired.Any()) { <tr><td class="text-muted">No expired stock.</td></tr> }
+            </table>
+            <small class="text-muted mt-2">Remove expired stock with a write-off on the Stock page.</small>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole(Roles.Pharmacist))
+{
+    <div class="card p-3 mt-3">
+        <h5>Prescriptions waiting</h5>
+        <table class="table table-sm align-middle mb-0">
+            <thead><tr><th>Patient</th><th>Drug</th><th>Dose</th><th class="text-end">Dispensed / prescribed</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.Queue)
+            {
+                foreach (var i in p.Items.Where(i => i.QuantityDispensed < i.QuantityPrescribed))
+                {
+                    <tr>
+                        <td>@p.Patient.FirstName @p.Patient.LastName <small class="text-muted">@p.Patient.Mrn</small></td>
+                        <td>@i.Drug.Name @i.Drug.Strength</td>
+                        <td>@i.Dose, @i.Frequency</td>
+                        <td class="text-end">@i.QuantityDispensed / @i.QuantityPrescribed</td>
+                        <td class="text-end"><a class="btn btn-sm btn-primary" asp-page="/Pharmacy/Dispense" asp-route-itemId="@i.Id">Dispense</a></td>
+                    </tr>
+                }
+            }
+            @if (!Model.Queue.Any()) { <tr><td colspan="5" class="text-muted">No prescriptions waiting.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+}

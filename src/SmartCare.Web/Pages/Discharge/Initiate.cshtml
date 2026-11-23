@@ -1,0 +1,65 @@
+@page
+@model SmartCare.Web.Pages.Discharge.InitiateModel
+@{
+    ViewData["Title"] = "Initiate Discharge";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Initiate Discharge</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary btn-sm">← Back to Dashboard</a>
+</div>
+
+@if (Model.OpenAdmissions.Count == 0)
+{
+    <div class="alert alert-info">
+        There are no patients currently admitted who don't already have a discharge in progress.
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Patient / Admission</label>
+                    <select name="admissionId" class="form-select" required>
+                        <option value="">— Select admitted patient —</option>
+                        @foreach (var a in Model.OpenAdmissions)
+                        {
+                            <option value="@a.Id">
+                                @a.Patient.FirstName @a.Patient.LastName
+                                (MRN: @a.Patient.Mrn) — admitted @a.AdmittedAtUtc.ToString("dd MMM yyyy HH:mm") UTC
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Discharge Summary <span class="text-danger">*</span></label>
+                    <textarea name="summary" class="form-control" rows="4"
+                              placeholder="Clinical summary, reason for discharge, condition at discharge…"
+                              required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Discharge Medications</label>
+                    <textarea name="medications" class="form-control" rows="3"
+                              placeholder="List medications and dosages to continue at home (optional)"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Follow-up Instructions</label>
+                    <textarea name="followUpInstructions" class="form-control" rows="3"
+                              placeholder="Follow-up appointments, activity restrictions, warning signs… (optional)"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Initiate Discharge</button>
+                    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+}

@@ -1,0 +1,127 @@
+@page "{id:guid}"
+@model SmartCare.Web.Pages.Discharge.DetailModel
+@using SmartCare.Domain.Common
+@{ ViewData["Title"] = "Discharge Detail"; }
+
+@if (Model.Discharge == null)
+{
+    <div class="alert alert-warning">Discharge not found.</div>
+    <a asp-page="/Discharge/Index" class="btn btn-secondary btn-sm">Back</a>
+}
+else
+{
+    var d = Model.Discharge;
+    var patient = d.Admission?.Patient;
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Discharge — @patient?.FirstName @patient?.LastName <small class="text-muted fs-6">@patient?.Mrn</small></h3>
+    <a asp-page="/Discharge/Index" class="btn btn-outline-secondary btn-sm">← Back</a>
+</div>
+
+<div class="row g-3">
+    <!-- Clinical summary -->
+    <div class="col-md-6">
+        <div class="card p-3 h-100">
+            <h6 class="text-muted">Clinical Summary</h6>
+            <p class="mb-2">@d.Summary</p>
+            @if (!string.IsNullOrWhiteSpace(d.Medications))
+            {
+                <h6 class="text-muted mt-2">Medications on Discharge</h6>
+                <p class="mb-2">@d.Medications</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(d.FollowUpInstructions))
+            {
+                <h6 class="text-muted mt-2">Follow-up Instructions</h6>
+                <p class="mb-0">@d.FollowUpInstructions</p>
+            }
+            <hr/>
+            <small class="text-muted">
+                Stage: <strong>@d.Stage</strong><br/>
+                @if (d.FinalizedAtUtc.HasValue) { <text>Finalized: @d.FinalizedAtUtc.Value.ToString("yyyy-MM-dd HH:mm") UTC<br/></text> }
+                @if (d.CompletedAtUtc.HasValue) { <text>Completed: @d.CompletedAtUtc.Value.ToString("yyyy-MM-dd HH:mm") UTC</text> }
+            </small>
+        </div>
+    </div>
+
+    <!-- Clearance checklist -->
+    <div class="col-md-6">
+        <div class="card p-3 h-100">
+            <h6 class="text-muted">Departmental Clearances</h6>
+            @if (d.Stage == DischargeStage.Draft || d.Stage == DischargeStage.Final)
+            {
+                <p class="text-muted"><em>Checklist will be created when the discharge is finalized.</em></p>
+            }
+            else
+            {
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Department</th><th>Status</th><th>Cleared by</th><th>When</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var c in d.Clearances)
+                    {
+                        var badge = c.Status switch {
+                            ClearanceStatus.Cleared => "bg-success",
+                            ClearanceStatus.Blocked => "bg-danger",
+                            _                       => "bg-secondary"
+                        };
+                        <tr>
+                            <td>@c.Department.Name @(c.IsMandatory ? "" : "<small class='text-muted'>(optional)</small>")</td>
+                            <td><span class="badge @badge">@c.Status</span></td>
+                            <td><small>@(c.ClearedByUserId?.ToString()[..8] ?? "—")</small></td>
+                            <td><small>@(c.ClearedAtUtc?.ToString("HH:mm") ?? "—")</small></td>
+                            <td>
+                                @if (c.Status == ClearanceStatus.Pending && d.Stage == DischargeStage.ClearancesPending)
+                                {
+                                    <form method="post" asp-page-handler="Clear" class="d-inline">
+                                        <input type="hidden" name="clearanceItemId" value="@c.Id" />
+                                        <button class="btn btn-xs btn-success btn-sm" type="submit">✓ Clear</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Block" class="d-inline ms-1">
+                                        <input type="hidden" name="clearanceItemId" value="@c.Id" />
+                                        <input type="text" name="blockReason" placeholder="Reason" class="form-control form-control-sm d-inline" style="width:120px" />
+                                        <button class="btn btn-xs btn-danger btn-sm" type="submit">✗ Block</button>
+                                    </form>
+                                }
+                                @if (c.Status == ClearanceStatus.Blocked && !string.IsNullOrWhiteSpace(c.BlockReason))
+                                {
+                                    <small class="text-danger d-block">@c.BlockReason</small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+
+            @if (d.Stage == DischargeStage.Draft && User.IsInRole("Doctor"))
+            {
+                <form method="post" asp-page-handler="Finalize" class="mt-3">
+                    <input type="hidden" name="dischargeId" value="@d.Id" />
+                    <button class="btn btn-primary btn-sm w-100">Finalize Discharge & Create Checklist</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Addenda -->
+<div class="card p-3 mt-3">
+    <h6 class="text-muted">Addenda</h6>
+    @foreach (var a in d.Addenda.OrderBy(x => x.CreatedAtUtc))
+    {
+        <div class="border-start border-2 border-info ps-3 mb-2">
+            <small class="text-muted">@a.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</small>
+            <p class="mb-0">@a.Text</p>
+        </div>
+    }
+    @if (!d.Addenda.Any()) { <p class="text-muted"><em>No addenda yet.</em></p> }
+
+    @if (d.Stage != DischargeStage.Draft)
+    {
+        <form method="post" asp-page-handler="Addendum" class="mt-3 d-flex gap-2">
+            <input type="hidden" name="dischargeId" value="@d.Id" />
+            <textarea name="text" class="form-control form-control-sm" rows="2" placeholder="Add an addendum..." required></textarea>
+            <button class="btn btn-outline-secondary btn-sm align-self-end">Add</button>
+        </form>
+    }
+</div>
+}

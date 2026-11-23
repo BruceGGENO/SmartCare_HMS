@@ -1,0 +1,46 @@
+@page
+@model DrugsModel
+@{ ViewData["Title"] = "Drugs"; }
+<h3 class="mb-3">Drug catalog</h3>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card p-3">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Code</th><th>Name</th><th>Strength</th><th>Class</th><th class="text-end">Reorder level</th><th class="text-end">Reorder qty</th></tr></thead>
+                <tbody>
+                @foreach (var d in Model.Drugs)
+                {
+                    <tr><td>@d.Code</td><td>@d.Name</td><td>@d.Strength</td><td>@d.DrugClass</td><td class="text-end">@d.ReorderLevel</td><td class="text-end">@d.ReorderQuantity</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-3">
+            <h5>Add a drug</h5>
+            <form method="post">
+                <div class="mb-2"><label class="form-label">Code</label><input asp-for="Input.Code" class="form-control" /></div>
+                <div class="mb-2"><label class="form-label">Name</label><input asp-for="Input.Name" class="form-control" /></div>
+                <div class="mb-2"><label class="form-label">Generic name</label><input asp-for="Input.GenericName" class="form-control" /></div>
+                <div class="mb-2"><label class="form-label">Drug class (e.g. Penicillin, used for allergy checks)</label><input asp-for="Input.DrugClass" class="form-control" /></div>
+                <div class="row">
+                    <div class="col mb-2"><label class="form-label">Form</label><input asp-for="Input.Form" class="form-control" /></div>
+                    <div class="col mb-2"><label class="form-label">Strength</label><input asp-for="Input.Strength" class="form-control" /></div>
+                </div>
+                <div class="row">
+                    <div class="col mb-2"><label class="form-label">Reorder level</label><input asp-for="Input.ReorderLevel" class="form-control" /></div>
+                    <div class="col mb-2"><label class="form-label">Reorder quantity</label><input asp-for="Input.ReorderQuantity" class="form-control" /></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price item (from billing catalog)</label>
+                    <select asp-for="Input.PriceItemId" class="form-select">
+                        <option value="">None yet</option>
+                        @foreach (var p in Model.PriceItems) { <option value="@p.Id">@p.Name</option> }
+                    </select>
+                </div>
+                <button class="btn btn-primary w-100">Save drug</button>
+            </form>
+        </div>
+    </div>
+</div>

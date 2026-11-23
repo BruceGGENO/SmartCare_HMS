@@ -1,0 +1,27 @@
+@page
+@model IndexModel
+@{ ViewData["Title"] = "Lab worklist"; }
+<h3 class="mb-3">Lab and radiology worklist</h3>
+<div class="card p-3">
+    <table class="table table-sm align-middle mb-0">
+        <thead><tr><th>Ordered</th><th>Patient</th><th>Test</th><th>Type</th><th>Sample</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var o in Model.Orders)
+        {
+            <tr>
+                <td>@o.OrderedAtUtc.ToString("MM-dd HH:mm")</td>
+                <td>@o.Patient.FirstName @o.Patient.LastName <small class="text-muted">@o.Patient.Mrn</small></td>
+                <td>@o.Test.Name</td>
+                <td>@o.Test.Kind</td>
+                <td>@(o.Samples.FirstOrDefault()?.Barcode ?? "-")</td>
+                <td>
+                    <span class="badge text-bg-secondary">@o.Status</span>
+                    @if (o.Results.Any(r => r.ReleasedAtUtc == null)) { <span class="badge text-bg-warning">awaiting verification</span> }
+                </td>
+                <td class="text-end"><a class="btn btn-sm btn-primary" asp-page="/Lab/Process" asp-route-id="@o.Id">Open</a></td>
+            </tr>
+        }
+        @if (!Model.Orders.Any()) { <tr><td colspan="7" class="text-muted">No open orders.</td></tr> }
+        </tbody>
+    </table>
+</div>

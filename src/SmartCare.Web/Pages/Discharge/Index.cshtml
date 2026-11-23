@@ -1,0 +1,80 @@
+@page
+@model SmartCare.Web.Pages.Discharge.IndexModel
+@using SmartCare.Domain.Common
+@{ ViewData["Title"] = "Discharge Dashboard"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Discharge Dashboard</h3>
+    @if (User.IsInRole("Doctor"))
+    {
+        <a class="btn btn-primary btn-sm" asp-page="/Discharge/Initiate">+ Initiate Discharge</a>
+    }
+</div>
+
+<div class="card p-3">
+    <table class="table table-sm align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Stage</th>
+                <th>Clearances</th>
+                <th>Time in Stage</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var d in Model.Discharges)
+        {
+            var patient = d.Admission?.Patient;
+            var cleared = d.Clearances.Count(c => c.Status == ClearanceStatus.Cleared);
+            var total   = d.Clearances.Count;
+            var elapsed = d.FinalizedAtUtc.HasValue
+                ? (DateTime.UtcNow - d.FinalizedAtUtc.Value).TotalMinutes
+                : (DateTime.UtcNow - d.CreatedAtUtc).TotalMinutes;
+            var stageBadge = d.Stage switch {
+                DischargeStage.Draft             => "bg-secondary",
+                DischargeStage.Final             => "bg-primary",
+                DischargeStage.ClearancesPending => elapsed > 60 ? "bg-danger" : "bg-warning text-dark",
+                DischargeStage.Completed         => "bg-success",
+                _                                => "bg-secondary"
+            };
+            <tr>
+                <td>
+                    <strong>@patient?.FirstName @patient?.LastName</strong><br/>
+                    <small class="text-muted">@patient?.Mrn</small>
+                </td>
+                <td><small>@d.DoctorId.ToString()[..8]</small></td>
+                <td><span class="badge @stageBadge">@d.Stage</span></td>
+                <td>
+                    @if (d.Stage == DischargeStage.ClearancesPending)
+                    {
+                        <span class="@(cleared < total ? "text-warning" : "text-success")">
+                            @cleared / @total cleared
+                        </span>
+                        @foreach (var c in d.Clearances.Where(c => c.Status == ClearanceStatus.Blocked))
+                        {
+                            <br/><small class="text-danger">⚠ @c.Department.Name blocked</small>
+                        }
+                    }
+                    else { <span class="text-muted">—</span> }
+                </td>
+                <td>
+                    <small class="text-muted">@((int)elapsed) min</small>
+                    @if (elapsed > 120 && d.Stage == DischargeStage.ClearancesPending)
+                    {
+                        <span class="badge bg-danger ms-1">OVERDUE</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="/Discharge/Detail" asp-route-id="@d.Id">View</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Discharges.Any())
+        {
+            <tr><td colspan="6" class="text-muted text-center py-3">No active discharges.</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

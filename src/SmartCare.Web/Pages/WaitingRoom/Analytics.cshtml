@@ -1,0 +1,140 @@
+@page
+@using SmartCare.Domain.Common
+@model SmartCare.Web.Pages.WaitingRoom.AnalyticsModel
+@{
+    ViewData["Title"] = "Queue Analytics";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">📊 Waiting Room Analytics</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary btn-sm">← Back to Live Queue</a>
+</div>
+
+<!-- Date Range Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" class="row g-3 align-items-end">
+            @Html.AntiForgeryToken()
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">From</label>
+                <input type="datetime-local" name="from" class="form-control"
+                       value="@Model.From.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">To</label>
+                <input type="datetime-local" name="to" class="form-control"
+                       value="@Model.To.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Target Wait (min)</label>
+                <input type="number" name="targetMinutes" class="form-control"
+                       value="@Model.TargetMinutes" min="1" step="1" />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Station Wait Stats Table -->
+<div class="card mb-4">
+    <div class="card-header"><strong>Station Wait Times</strong></div>
+    <div class="card-body p-0">
+        @if (Model.Stats.Count == 0)
+        {
+            <p class="text-muted text-center py-3 mb-0">No data for the selected period.</p>
+        }
+        else
+        {
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Station</th>
+                        <th>Avg (min)</th>
+                        <th>Median (min)</th>
+                        <th>P90 (min)</th>
+                        <th>Events</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Stats)
+                    {
+                        var isOver = s.AvgMinutes > Model.TargetMinutes;
+                        <tr class="@(isOver ? "table-danger" : "")">
+                            <td>@s.Station</td>
+                            <td>@s.AvgMinutes.ToString("F1")</td>
+                            <td>@s.MedianMinutes.ToString("F1")</td>
+                            <td>@s.P90Minutes.ToString("F1")</td>
+                            <td>@s.EventCount</td>
+                            <td>
+                                @if (isOver)
+                                {
+                                    <span class="badge bg-danger">⚠ BOTTLENECK</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">OK</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<!-- Heatmap -->
+@if (Model.Heatmap.Count > 0)
+{
+    <div class="card mb-4">
+        <div class="card-header"><strong>Wait-Time Heatmap (Station × Hour of Day)</strong></div>
+        <div class="card-body p-0" style="overflow-x: auto;">
+            @{
+                var stations = Model.Heatmap.Select(h => h.Station).Distinct().OrderBy(s => s).ToList();
+                var maxWait = Model.Heatmap.Max(h => h.AvgWaitMinutes);
+                if (maxWait == 0) maxWait = 1;
+            }
+            <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.8rem;">
+                <thead>
+                    <tr>
+                        <th>Station</th>
+                        @for (int h = 0; h < 24; h++)
+                        {
+                            <th>@h.ToString("D2")</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var station in stations)
+                    {
+                        <tr>
+                            <td class="fw-semibold text-start">@station</td>
+                            @for (int h = 0; h < 24; h++)
+                            {
+                                var cell = Model.Heatmap.FirstOrDefault(c =>
+                                    c.Station == station && c.HourOfDay == h);
+                                if (cell != null)
+                                {
+                                    var intensity = Math.Min(cell.AvgWaitMinutes / maxWait, 1.0);
+                                    var r = (int)(255 * intensity);
+                                    var g = (int)(255 * (1 - intensity));
+                                    <td style="background: rgba(@r, @g, 80, 0.5);"
+                                        title="@cell.AvgWaitMinutes.ToString("F1") min avg">
+                                        @cell.AvgWaitMinutes.ToString("F0")
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-muted">—</td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

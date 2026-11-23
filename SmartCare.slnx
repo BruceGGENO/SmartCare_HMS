@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartCare.Domain/SmartCare.Domain.csproj" />
+    <Project Path="src/SmartCare.Application/SmartCare.Application.csproj" />
+    <Project Path="src/SmartCare.Infrastructure/SmartCare.Infrastructure.csproj" />
+    <Project Path="src/SmartCare.Web/SmartCare.Web.csproj" />
+  </Folder>
+</Solution>

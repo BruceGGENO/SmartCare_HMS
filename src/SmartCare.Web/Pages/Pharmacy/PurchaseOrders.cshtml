@@ -1,0 +1,46 @@
+@page
+@model PurchaseOrdersModel
+@{ ViewData["Title"] = "Purchase orders"; }
+<h3 class="mb-3">Purchase orders</h3>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card p-3">
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>Created</th><th>Supplier</th><th>Status</th><th class="text-end">Lines</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var p in Model.Orders)
+                {
+                    <tr>
+                        <td>@p.CreatedAtUtc.ToString("yyyy-MM-dd")</td>
+                        <td>@p.Supplier.Name</td>
+                        <td><span class="badge text-bg-secondary">@p.Status</span></td>
+                        <td class="text-end">@p.Lines.Count</td>
+                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-page="/Pharmacy/PurchaseOrder" asp-route-id="@p.Id">Open</a></td>
+                    </tr>
+                }
+                @if (!Model.Orders.Any()) { <tr><td colspan="5" class="text-muted">No purchase orders yet.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-3 mb-3">
+            <h5>New purchase order</h5>
+            <form method="post" asp-page-handler="Create">
+                <select name="supplierId" class="form-select mb-2">
+                    @foreach (var s in Model.Suppliers) { <option value="@s.Id">@s.Name</option> }
+                </select>
+                <button class="btn btn-primary w-100">Create draft</button>
+            </form>
+        </div>
+        <div class="card p-3">
+            <h5>New supplier</h5>
+            <form method="post" asp-page-handler="Supplier">
+                <input name="name" class="form-control mb-2" placeholder="Name" />
+                <input name="phone" class="form-control mb-2" placeholder="Phone" />
+                <input name="email" class="form-control mb-2" placeholder="Email" />
+                <button class="btn btn-outline-primary w-100">Save supplier</button>
+            </form>
+        </div>
+    </div>
+</div>

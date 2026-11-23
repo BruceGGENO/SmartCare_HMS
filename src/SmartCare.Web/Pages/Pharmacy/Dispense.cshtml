@@ -1,0 +1,49 @@
+@page "{itemId:guid}"
+@model DispenseModel
+@{ ViewData["Title"] = "Dispense"; }
+@if (Model.Item is not null)
+{
+    var patient = Model.Item.Prescription.Patient;
+    var remaining = Model.Item.QuantityPrescribed - Model.Item.QuantityDispensed;
+    <h3 class="mb-3">Dispense</h3>
+
+    @if (patient.Allergies.Any())
+    {
+        <div class="allergy-banner mb-3">
+            <strong>Allergies:</strong>
+            @string.Join(", ", patient.Allergies.Select(a => $"{a.Substance} ({a.Severity})"))
+        </div>
+    }
+
+    <div class="card p-3" style="max-width:640px">
+        <p class="mb-1"><strong>@patient.FirstName @patient.LastName</strong> <small class="text-muted">@patient.Mrn</small></p>
+        <p class="mb-1">@Model.Item.Drug.Name @Model.Item.Drug.Strength, @Model.Item.Dose, @Model.Item.Frequency @Model.Item.Duration</p>
+        <p>Prescribed @Model.Item.QuantityPrescribed, already dispensed @Model.Item.QuantityDispensed, <strong>still to give: @remaining</strong></p>
+
+        @if (Model.Conflicts.Any())
+        {
+            <div class="alert alert-error">
+                <strong>Allergy warning.</strong>
+                @foreach (var c in Model.Conflicts) { <div>Patient is allergic to @c.Allergy.Substance (@c.Allergy.Severity). @c.Drug.Name conflicts with it.</div> }
+                Do not dispense unless the doctor confirms. If you continue, write the reason below; it is recorded.
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Quantity to dispense now</label>
+                <input asp-for="Quantity" type="number" min="1" max="@remaining" class="form-control" />
+                <div class="form-text">Unexpired batches are used, earliest expiry first. You can dispense part of the amount now and the rest later.</div>
+            </div>
+            @if (Model.Conflicts.Any())
+            {
+                <div class="mb-3">
+                    <label class="form-label">Override reason (required because of the allergy warning)</label>
+                    <input asp-for="OverrideReason" class="form-control" />
+                </div>
+            }
+            <button class="btn btn-primary">Dispense</button>
+            <a class="btn btn-outline-secondary" asp-page="/Pharmacy/Index">Back</a>
+        </form>
+    </div>
+}

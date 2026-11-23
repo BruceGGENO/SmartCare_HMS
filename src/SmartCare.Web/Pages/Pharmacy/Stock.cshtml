@@ -1,0 +1,65 @@
+@page
+@model StockModel
+@{ ViewData["Title"] = "Stock"; }
+<h3 class="mb-3">Stock</h3>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card p-3">
+            <h5>Batches on the shelves</h5>
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>Drug</th><th>Batch</th><th>Expiry</th><th class="text-end">Qty</th><th>Correct or remove</th></tr></thead>
+                <tbody>
+                @foreach (var b in Model.Batches)
+                {
+                    var expired = b.ExpiryDate < DateOnly.FromDateTime(DateTime.UtcNow);
+                    <tr class="@(expired ? "table-danger" : "")">
+                        <td>@b.Drug.Name @b.Drug.Strength</td>
+                        <td>@b.BatchNumber</td>
+                        <td>@b.ExpiryDate.ToString("yyyy-MM-dd") @if (expired) { <span class="badge text-bg-danger">expired</span> }</td>
+                        <td class="text-end">@b.QuantityOnHand</td>
+                        <td>
+                            <form method="post" class="d-flex gap-1">
+                                <input type="hidden" name="batchId" value="@b.Id" />
+                                <input name="amount" type="number" class="form-control form-control-sm" style="width:80px" placeholder="Qty" />
+                                <input name="reason" class="form-control form-control-sm" placeholder="Reason" />
+                                <button class="btn btn-sm btn-outline-primary" asp-page-handler="Adjust" title="Amount can be negative">Adjust</button>
+                                <button class="btn btn-sm btn-outline-danger" asp-page-handler="WriteOff">Write off</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Batches.Any()) { <tr><td colspan="5" class="text-muted">No stock yet.</td></tr> }
+                </tbody>
+            </table>
+            <small class="text-muted mt-2">Adjust adds the amount (use a minus sign to remove, for a stock-take). Write off removes damaged or expired stock. Both need a reason.</small>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-3">
+            <h5>Receive stock</h5>
+            <form method="post" asp-page-handler="Receive">
+                <div class="mb-2">
+                    <label class="form-label">Drug</label>
+                    <select name="drugId" class="form-select">
+                        @foreach (var d in Model.Drugs) { <option value="@d.Id">@d.Name @d.Strength</option> }
+                    </select>
+                </div>
+                <div class="mb-2"><label class="form-label">Store</label><input name="store" class="form-control" value="Main Pharmacy" /></div>
+                <div class="mb-2"><label class="form-label">Batch number</label><input name="batchNumber" class="form-control" /></div>
+                <div class="mb-2"><label class="form-label">Expiry date</label><input name="expiry" type="date" class="form-control" /></div>
+                <div class="row">
+                    <div class="col mb-2"><label class="form-label">Quantity</label><input name="quantity" type="number" class="form-control" /></div>
+                    <div class="col mb-2"><label class="form-label">Unit cost</label><input name="unitCost" type="number" step="0.01" class="form-control" /></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Supplier</label>
+                    <select name="supplierId" class="form-select">
+                        <option value="">None</option>
+                        @foreach (var s in Model.Suppliers) { <option value="@s.Id">@s.Name</option> }
+                    </select>
+                </div>
+                <button class="btn btn-primary w-100">Receive</button>
+            </form>
+        </div>
+    </div>
+</div>

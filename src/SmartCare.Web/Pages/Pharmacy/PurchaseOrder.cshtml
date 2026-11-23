@@ -1,0 +1,71 @@
+@page "{id:guid}"
+@model PurchaseOrderModel
+@{ ViewData["Title"] = "Purchase order"; }
+@if (Model.Order is not null)
+{
+    <h3 class="mb-1">Purchase order: @Model.Order.Supplier.Name</h3>
+    <p class="text-muted">Status: <span class="badge text-bg-secondary">@Model.Order.Status</span></p>
+
+    <div class="card p-3 mb-3">
+        @if (Model.Order.Status == PurchaseOrderStatus.Sent)
+        {
+            <form method="post" asp-page-handler="Receive" asp-route-id="@Model.Order.Id">
+                <table class="table table-sm align-middle">
+                    <thead><tr><th>Drug</th><th class="text-end">Ordered</th><th class="text-end">Received so far</th><th>Batch number</th><th>Expiry</th><th>Receive now</th></tr></thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Order.Lines.Count; i++)
+                    {
+                        var l = Model.Order.Lines.ElementAt(i);
+                        <tr>
+                            <td>@l.Drug.Name @l.Drug.Strength</td>
+                            <td class="text-end">@l.Quantity</td>
+                            <td class="text-end">@l.QuantityReceived</td>
+                            <td>
+                                <input type="hidden" name="Receipts[@i].LineId" value="@l.Id" />
+                                <input name="Receipts[@i].BatchNumber" class="form-control form-control-sm" />
+                            </td>
+                            <td><input name="Receipts[@i].ExpiryDate" type="date" class="form-control form-control-sm" /></td>
+                            <td><input name="Receipts[@i].Quantity" type="number" class="form-control form-control-sm" style="width:90px" /></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <button class="btn btn-primary">Receive goods into stock</button>
+            </form>
+        }
+        else
+        {
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Drug</th><th class="text-end">Ordered</th><th class="text-end">Received</th><th class="text-end">Unit cost</th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Order.Lines)
+                {
+                    <tr><td>@l.Drug.Name @l.Drug.Strength</td><td class="text-end">@l.Quantity</td><td class="text-end">@l.QuantityReceived</td><td class="text-end">@l.UnitCost.ToString("N2")</td></tr>
+                }
+                @if (!Model.Order.Lines.Any()) { <tr><td colspan="4" class="text-muted">No lines yet.</td></tr> }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    @if (Model.Order.Status == PurchaseOrderStatus.Draft)
+    {
+        <div class="card p-3 mb-3">
+            <h5>Add a line</h5>
+            <form method="post" asp-page-handler="AddLine" asp-route-id="@Model.Order.Id" class="row g-2">
+                <div class="col-md-5">
+                    <select name="drugId" class="form-select">
+                        @foreach (var d in Model.Drugs) { <option value="@d.Id">@d.Name @d.Strength</option> }
+                    </select>
+                </div>
+                <div class="col-md-2"><input name="quantity" type="number" class="form-control" placeholder="Quantity" /></div>
+                <div class="col-md-3"><input name="unitCost" type="number" step="0.01" class="form-control" placeholder="Unit cost" /></div>
+                <div class="col-md-2"><button class="btn btn-outline-primary w-100">Add</button></div>
+            </form>
+        </div>
+        <form method="post" asp-page-handler="Send" asp-route-id="@Model.Order.Id">
+            <button class="btn btn-primary">Send to supplier</button>
+        </form>
+    }
+    <a class="btn btn-link mt-2" asp-page="/Pharmacy/PurchaseOrders">Back to list</a>
+}

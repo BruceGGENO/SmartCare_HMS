@@ -1,0 +1,56 @@
+@page
+@model TestsModel
+@{ ViewData["Title"] = "Test catalog"; }
+<h3 class="mb-3">Test catalog</h3>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card p-3">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Unit</th><th>Normal</th><th>Critical</th></tr></thead>
+                <tbody>
+                @foreach (var t in Model.Tests)
+                {
+                    <tr>
+                        <td>@t.Code</td><td>@t.Name</td><td>@t.Kind</td><td>@t.Unit</td>
+                        <td>@(t.ReferenceLow is null && t.ReferenceHigh is null ? "-" : $"{t.ReferenceLow} to {t.ReferenceHigh}")</td>
+                        <td>@(t.CriticalLow is null && t.CriticalHigh is null ? "-" : $"below {t.CriticalLow} or above {t.CriticalHigh}")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-3">
+            <h5>Add a test</h5>
+            <form method="post">
+                <div class="mb-2"><label class="form-label">Code</label><input asp-for="Input.Code" class="form-control" /></div>
+                <div class="mb-2"><label class="form-label">Name</label><input asp-for="Input.Name" class="form-control" /></div>
+                <div class="mb-2">
+                    <label class="form-label">Type</label>
+                    <select asp-for="Input.Kind" class="form-select">
+                        <option value="Lab">Lab</option>
+                        <option value="Radiology">Radiology</option>
+                    </select>
+                </div>
+                <div class="mb-2"><label class="form-label">Unit</label><input asp-for="Input.Unit" class="form-control" /></div>
+                <div class="row">
+                    <div class="col mb-2"><label class="form-label">Normal low</label><input asp-for="Input.ReferenceLow" class="form-control" /></div>
+                    <div class="col mb-2"><label class="form-label">Normal high</label><input asp-for="Input.ReferenceHigh" class="form-control" /></div>
+                </div>
+                <div class="row">
+                    <div class="col mb-2"><label class="form-label">Critical low</label><input asp-for="Input.CriticalLow" class="form-control" /></div>
+                    <div class="col mb-2"><label class="form-label">Critical high</label><input asp-for="Input.CriticalHigh" class="form-control" /></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price item (from billing catalog)</label>
+                    <select asp-for="Input.PriceItemId" class="form-select">
+                        <option value="">None yet</option>
+                        @foreach (var p in Model.PriceItems) { <option value="@p.Id">@p.Name</option> }
+                    </select>
+                </div>
+                <button class="btn btn-primary w-100">Save test</button>
+            </form>
+        </div>
+    </div>
+</div>

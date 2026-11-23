@@ -1,0 +1,72 @@
+@page
+@using SmartCare.Domain.Common
+@model SmartCare.Web.Pages.WaitingRoom.IndexModel
+@{
+    ViewData["Title"] = "Waiting Room — Live Queue";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">🏥 Waiting Room — Live Queue</h2>
+    <div class="d-flex gap-2">
+        <a asp-page="Record" class="btn btn-primary btn-sm">+ Record Event</a>
+        <a asp-page="Analytics" class="btn btn-outline-secondary btn-sm">📊 Analytics</a>
+    </div>
+</div>
+
+<p class="text-muted">Auto-refreshes every 30 seconds. Last refresh: @DateTime.UtcNow.ToString("HH:mm:ss") UTC</p>
+
+<div class="row g-3">
+    @foreach (var station in Enum.GetValues<JourneyStation>())
+    {
+        var patients = Model.Queues.ContainsKey(station) ? Model.Queues[station] : new();
+        var cardClass = patients.Count > 5 ? "border-danger" : patients.Count > 0 ? "border-warning" : "";
+
+        <div class="col-md-6 col-xl-4">
+            <div class="card @cardClass" style="min-height: 200px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>@station</strong>
+                    <span class="badge @(patients.Count > 5 ? "bg-danger" : patients.Count > 0 ? "bg-warning text-dark" : "bg-secondary")">
+                        @patients.Count waiting
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    @if (patients.Count == 0)
+                    {
+                        <p class="text-muted text-center py-3 mb-0">No patients waiting</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>MRN</th>
+                                    <th>Wait</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in patients)
+                                {
+                                    var wait = p.WaitMinutes;
+                                    var waitClass = wait > 60 ? "text-danger fw-bold" : wait > 30 ? "text-warning" : "";
+                                    <tr>
+                                        <td>@p.PatientName</td>
+                                        <td><code>@p.Mrn</code></td>
+                                        <td class="@waitClass">@((int)wait) min</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(function () { location.reload(); }, 30000);
+    </script>
+}
