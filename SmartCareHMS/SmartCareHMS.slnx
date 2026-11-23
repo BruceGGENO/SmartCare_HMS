@@ -1,6 +1,6 @@
 <Solution>
+  <Project Path="SmartCare.Presentation/SmartCare.Presentation.csproj" />
   <Project Path="SmartCare.Application/SmartCare.Application.csproj" />
   <Project Path="SmartCare.Domain/SmartCare.Domain.csproj" />
   <Project Path="SmartCare.Infrastructure/SmartCare.Infrastructure.csproj" />
-  <Project Path="SmartCare.Presentation/SmartCare.Presentation.csproj" />
 </Solution>
