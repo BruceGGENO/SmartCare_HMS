@@ -1,5 +1,8 @@
 using SmartCare.Application.Interfaces.Infrastructure;
+using SmartCare.Application.Interfaces.Services;
+using SmartCare.Infrastructure.Auditing;
 using SmartCare.Infrastructure.Data;
+using SmartCare.Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +14,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
 builder.Services.AddScoped<ISqlExecutor>(_ => new SqlExecutor(connectionString));
+builder.Services.AddScoped<IAuditLogger, AuditLogger>();
 
 var app = builder.Build();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
