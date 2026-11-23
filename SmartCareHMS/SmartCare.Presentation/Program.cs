@@ -1,10 +1,9 @@
 using SmartCare.Application.Interfaces.Infrastructure;
 using SmartCare.Application.Interfaces.Services;
-using SmartCare.Infrastructure.Data;
-using SmartCare.Infrastructure.Services;
 using SmartCare.Infrastructure.Auditing;
 using SmartCare.Infrastructure.Data;
 using SmartCare.Infrastructure.FileStorage;
+using SmartCare.Infrastructure.Services;
 using SmartCare.Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,15 +15,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? builder.Configuration.GetConnectionString("SmartCare")
     ?? throw new InvalidOperationException("Connection string was not found.");
 
-// Register database executor and billing services
+// Register database executor, billing, audit, and storage services
 builder.Services.AddScoped<ISqlExecutor>(_ => new SqlExecutor(connectionString));
 builder.Services.AddScoped<IPaymentGateway, PaymentGatewayStub>();
 builder.Services.AddScoped<IBillingService, BillingService>();
-// Register SqlExecutor with connection string from appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
-
-builder.Services.AddScoped<ISqlExecutor>(_ => new SqlExecutor(connectionString));
+builder.Services.AddScoped<IRevenueAccountingService, RevenueAccountingService>();
 builder.Services.AddScoped<IAuditLogger, AuditLogger>();
 
 var uploadsRoot = Path.Combine(
