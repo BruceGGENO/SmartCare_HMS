@@ -2,6 +2,7 @@ using SmartCare.Application.Interfaces.Infrastructure;
 using SmartCare.Application.Interfaces.Services;
 using SmartCare.Infrastructure.Auditing;
 using SmartCare.Infrastructure.Data;
+using SmartCare.Infrastructure.FileStorage;
 using SmartCare.Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddScoped<ISqlExecutor>(_ => new SqlExecutor(connectionString));
 builder.Services.AddScoped<IAuditLogger, AuditLogger>();
+
+var uploadsRoot = Path.Combine(
+    builder.Environment.ContentRootPath,
+    builder.Configuration.GetValue("FileStorage:RootPath", "App_Data/uploads")!);
+var maxFileBytes = builder.Configuration.GetValue("FileStorage:MaxFileBytes", 5 * 1024 * 1024);
+Directory.CreateDirectory(uploadsRoot);
+builder.Services.AddScoped<IFileStorage>(sp =>
+    new LocalFileStorage(sp.GetRequiredService<ISqlExecutor>(), uploadsRoot, maxFileBytes));
 
 var app = builder.Build();
 
