@@ -15,11 +15,14 @@
                 Dashboard
             </a>
 
-            <a class="nav-link"
-               asp-controller="Billing"
-               asp-action="Index">
-                Billing & Invoicing
-            </a>
+            @if (User.IsInRole("Billing Staff") || User.IsInRole("Hospital Admin") || User.IsInRole("Super Admin"))
+            {
+                <a class="nav-link"
+                   asp-controller="Billing"
+                   asp-action="Index">
+                    Billing & Invoicing
+                </a>
+            }
 
             @if (User.IsInRole("Receptionist"))
             {
