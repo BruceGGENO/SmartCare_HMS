@@ -1,8 +1,46 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "SmartCare HMS";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold text-primary mb-3">SmartCare Hospital Management System</h1>
+    <p class="lead text-muted mb-5">Enterprise clinical, administrative, and financial platform built with ASP.NET Core & SQL Server.</p>
+
+    <div class="row g-4 justify-content-center text-start">
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0 border-top border-4 border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary px-3 py-2">MOD-04</span>
+                        <span class="text-muted small">Cyitatire Arthur</span>
+                    </div>
+                    <h4 class="card-title fw-bold">Billing & Invoicing</h4>
+                    <p class="card-text text-muted">
+                        Patient invoice management, line items breakdown, insurance claim status, and Mobile Money payment processing.
+                    </p>
+                    <a asp-controller="Billing" asp-action="Index" class="btn btn-primary w-100 mt-2">
+                        Open Billing Module &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0 border-top border-4 border-success">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-success px-3 py-2">MOD-12</span>
+                        <span class="text-muted small">Cyitatire Arthur</span>
+                    </div>
+                    <h4 class="card-title fw-bold">Revenue vs. Usage Accounting</h4>
+                    <p class="card-text text-muted">
+                        Prepaid package tracking, session consumption recognition, earned vs. deferred revenue comparison bar, and RFC 4180 CSV export.
+                    </p>
+                    <a asp-controller="Revenue" asp-action="Index" class="btn btn-success w-100 mt-2">
+                        Open Revenue Accounting &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

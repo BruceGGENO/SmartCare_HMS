@@ -21,6 +21,12 @@
                 Billing & Invoicing
             </a>
 
+            <a class="nav-link"
+               asp-controller="Revenue"
+               asp-action="Index">
+                Revenue Accounting
+            </a>
+
             @if (User.IsInRole("Receptionist"))
             {
                 @* Receptionist navigation links go here *@
