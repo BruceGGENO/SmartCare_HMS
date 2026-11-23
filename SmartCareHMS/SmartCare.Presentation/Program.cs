@@ -3,6 +3,8 @@ using SmartCare.Application.Common;
 using SmartCare.Application.Interfaces.Infrastructure;
 using SmartCare.Application.Interfaces.Security;
 using SmartCare.Application.Interfaces.Services;
+using SmartCare.Infrastructure.Data;
+using SmartCare.Infrastructure.Services;
 using SmartCare.Infrastructure.Auditing;
 using SmartCare.Infrastructure.Authentication;
 using SmartCare.Infrastructure.Data;
@@ -15,6 +17,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("SmartCare")
+    ?? throw new InvalidOperationException("Connection string was not found.");
+
+// Register database executor and billing services
+builder.Services.AddScoped<ISqlExecutor>(_ => new SqlExecutor(connectionString));
+builder.Services.AddScoped<IPaymentGateway, PaymentGatewayStub>();
+builder.Services.AddScoped<IBillingService, BillingService>();
 // Register SqlExecutor with connection string from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
