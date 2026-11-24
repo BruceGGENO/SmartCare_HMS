@@ -1,0 +1,7 @@
+@SmartCare.API_HostAddress = https://localhost:7051
+
+### Check SmartCare API status
+GET {{SmartCare.API_HostAddress}}/api/health
+Accept: application/json
+
+###
