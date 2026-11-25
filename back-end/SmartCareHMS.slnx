@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SmartCare.API/SmartCare.API.csproj" Id="f8a1eaa9-3858-41f7-9d59-e5547215cd2a" />
+  <Project Path="SmartCare.Application/SmartCare.Application.csproj" Id="1aa22ffa-9446-4053-9501-11dd6e519246" />
+  <Project Path="SmartCare.Domain/SmartCare.Domain.csproj" Id="be7b80e1-892c-4d9d-b142-c61a3cc13b9f" />
+  <Project Path="SmartCare.Infrastructure/SmartCare.Infrastructure.csproj" Id="1fe1aeec-842b-4d41-9508-c5c4ab62a81b" />
+</Solution>
