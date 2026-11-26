@@ -1,0 +1,20 @@
+namespace SmartCare.Application.Interfaces.Services;
+
+public sealed class AuditLogEntry
+{
+    public long AuditLogId { get; set; }
+
+    public string Action { get; set; } = string.Empty;
+
+    public string EntityType { get; set; } = string.Empty;
+
+    public string? EntityId { get; set; }
+
+    public string? ActorUserId { get; set; }
+
+    public string Outcome { get; set; } = string.Empty;
+
+    public DateTimeOffset OccurredAtUtc { get; set; }
+
+    public string? CorrelationId { get; set; }
+}
