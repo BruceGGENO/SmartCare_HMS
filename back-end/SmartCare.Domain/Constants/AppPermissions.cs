@@ -31,6 +31,10 @@ public static class AppPermissions
     public const string PatientsClinicalWrite = "patients.clinical.write";
     public const string PatientsIcdRead = "patients.icd.read";
 
+    public const string BillingRead = "billing.read";
+    public const string BillingCreate = "billing.create";
+    public const string BillingPay = "billing.pay";
+
     public const string RevenueRead = "revenue.read";
     public const string RevenuePurchase = "revenue.purchase";
     public const string RevenueConsume = "revenue.consume";
@@ -57,6 +61,9 @@ public static class AppPermissions
         PatientsClinicalRead,
         PatientsClinicalWrite,
         PatientsIcdRead,
+        BillingRead,
+        BillingCreate,
+        BillingPay,
         RevenueRead,
         RevenuePurchase,
         RevenueConsume
