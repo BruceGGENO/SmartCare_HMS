@@ -1,7 +1,40 @@
 @SmartCare.API_HostAddress = https://localhost:7051
+@token = replace-with-access-token
 
-### Check SmartCare API status
+### Health
 GET {{SmartCare.API_HostAddress}}/api/health
 Accept: application/json
 
-###
+### Login (password)
+POST {{SmartCare.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "receptionist",
+  "password": "Demo@12345"
+}
+
+### Request patient OTP
+POST {{SmartCare.API_HostAddress}}/api/auth/otp/request
+Content-Type: application/json
+
+{
+  "userName": "patient"
+}
+
+### Login with OTP
+POST {{SmartCare.API_HostAddress}}/api/auth/otp/login
+Content-Type: application/json
+
+{
+  "userName": "patient",
+  "code": "123456"
+}
+
+### Current user
+GET {{SmartCare.API_HostAddress}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Outbox (admin)
+GET {{SmartCare.API_HostAddress}}/api/auth/outbox
+Authorization: Bearer {{token}}
