@@ -41,6 +41,7 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     await scope.ServiceProvider.GetRequiredService<IAuthService>().EnsureDemoUsersAsync();
     await scope.ServiceProvider.GetRequiredService<IAppointmentService>().EnsureDemoDataAsync();
+    await scope.ServiceProvider.GetRequiredService<IRevenueService>().EnsureDemoDataAsync();
 }
 
 app.UseMiddleware<CorrelationIdMiddleware>();
