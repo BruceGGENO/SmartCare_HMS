@@ -116,7 +116,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpGet("outbox")]
-    [Authorize(Roles = $"{AppRoles.SuperAdmin},{AppRoles.HospitalAdmin}")]
+    [Authorize(Policy = AppPermissions.OutboxRead)]
     [ProducesResponseType(typeof(IReadOnlyList<OutboxMessageResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Outbox(CancellationToken cancellationToken)
     {
@@ -160,6 +160,7 @@ public sealed class AuthController : ControllerBase
         UserId = user.UserId,
         UserName = user.UserName,
         DisplayName = user.DisplayName,
-        Roles = user.Roles
+        Roles = user.Roles,
+        Permissions = user.Permissions
     };
 }

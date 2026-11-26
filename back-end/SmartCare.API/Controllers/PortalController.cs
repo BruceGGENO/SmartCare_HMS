@@ -9,7 +9,7 @@ namespace SmartCare.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = AppRoles.Patient)]
+[Authorize]
 public sealed class PortalController : ControllerBase
 {
     private readonly IAppointmentService _appointments;
@@ -22,6 +22,7 @@ public sealed class PortalController : ControllerBase
     }
 
     [HttpGet("appointments")]
+    [Authorize(Policy = AppPermissions.PortalAppointmentsRead)]
     [ProducesResponseType(typeof(IReadOnlyList<AppointmentResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MyAppointments(CancellationToken cancellationToken)
@@ -34,6 +35,7 @@ public sealed class PortalController : ControllerBase
     }
 
     [HttpGet("appointments/{id:int}")]
+    [Authorize(Policy = AppPermissions.PortalAppointmentsRead)]
     [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,6 +52,7 @@ public sealed class PortalController : ControllerBase
     }
 
     [HttpGet("history")]
+    [Authorize(Policy = AppPermissions.PortalHistoryRead)]
     [ProducesResponseType(typeof(PortalHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> History(CancellationToken cancellationToken)
@@ -64,6 +67,7 @@ public sealed class PortalController : ControllerBase
     }
 
     [HttpGet("packages")]
+    [Authorize(Policy = AppPermissions.PortalPackagesRead)]
     [ProducesResponseType(typeof(IReadOnlyList<PackageBalanceResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Packages(CancellationToken cancellationToken)

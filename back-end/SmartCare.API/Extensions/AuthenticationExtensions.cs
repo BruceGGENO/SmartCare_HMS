@@ -41,8 +41,13 @@ public static class AuthenticationExtensions
 
         services.AddAuthorization(options =>
         {
-            foreach (var role in AppRoles.All)
-                options.AddPolicy(role, policy => policy.RequireRole(role));
+            // Permission policies — this is what controllers authorize against.
+            foreach (var permission in AppPermissions.All)
+            {
+                options.AddPolicy(
+                    permission,
+                    policy => policy.RequireClaim(AppPermissions.ClaimType, permission));
+            }
         });
 
         return services;

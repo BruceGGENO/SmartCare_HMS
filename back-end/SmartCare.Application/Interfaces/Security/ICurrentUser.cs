@@ -1,4 +1,4 @@
-namespace SmartCare.Application.Interfaces.Security;
+﻿namespace SmartCare.Application.Interfaces.Security;
 
 public interface ICurrentUser
 {
@@ -10,5 +10,9 @@ public interface ICurrentUser
 
     IReadOnlyCollection<string> Roles { get; }
 
+    IReadOnlyCollection<string> Permissions { get; }
+
     bool IsInRole(string role);
+
+    bool HasPermission(string permission);
 }

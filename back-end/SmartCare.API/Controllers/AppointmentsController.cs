@@ -11,7 +11,7 @@ namespace SmartCare.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{AppRoles.Receptionist},{AppRoles.Doctor},{AppRoles.Nurse}")]
+[Authorize(Policy = AppPermissions.AppointmentsRead)]
 public sealed class AppointmentsController : ControllerBase
 {
     private readonly IAppointmentService _appointments;
@@ -41,7 +41,7 @@ public sealed class AppointmentsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<AppointmentResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(CancellationToken cancellationToken)
     {
-        Guid? doctorId = _currentUser.IsInRole(AppRoles.Doctor) && !_currentUser.IsInRole(AppRoles.Receptionist)
+        Guid? doctorId = _currentUser.HasPermission(AppPermissions.AppointmentsRead) && !_currentUser.HasPermission(AppPermissions.AppointmentsBook)
             ? ParseUserId()
             : null;
 
@@ -59,19 +59,19 @@ public sealed class AppointmentsController : ControllerBase
     }
 
     [HttpGet("patients")]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsPatientsRead)]
     [ProducesResponseType(typeof(IReadOnlyList<PatientListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Patients(CancellationToken cancellationToken) =>
         Ok(await _appointments.ListPatientsAsync(cancellationToken));
 
     [HttpGet("doctors")]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsDoctorsRead)]
     [ProducesResponseType(typeof(IReadOnlyList<DoctorListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Doctors(CancellationToken cancellationToken) =>
         Ok(await _appointments.ListDoctorsAsync(cancellationToken));
 
     [HttpPost]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsBook)]
     [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status409Conflict)]
@@ -99,7 +99,7 @@ public sealed class AppointmentsController : ControllerBase
     }
 
     [HttpPut("{id:int}/reschedule")]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsReschedule)]
     [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status409Conflict)]
@@ -128,7 +128,7 @@ public sealed class AppointmentsController : ControllerBase
     }
 
     [HttpPost("{id:int}/cancel")]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsCancel)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -149,7 +149,7 @@ public sealed class AppointmentsController : ControllerBase
     }
 
     [HttpPost("check-in")]
-    [Authorize(Roles = AppRoles.Receptionist)]
+    [Authorize(Policy = AppPermissions.AppointmentsCheckIn)]
     [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiMessageResponse), StatusCodes.Status404NotFound)]

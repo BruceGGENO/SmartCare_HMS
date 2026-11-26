@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using SmartCare.Application.Interfaces.Security;
+using SmartCare.Domain.Constants;
 
 namespace SmartCare.API.Security;
 
@@ -23,5 +24,11 @@ public sealed class CurrentUser : ICurrentUser
     public IReadOnlyCollection<string> Roles =>
         User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
 
+    public IReadOnlyCollection<string> Permissions =>
+        User.FindAll(AppPermissions.ClaimType).Select(c => c.Value).ToArray();
+
     public bool IsInRole(string role) => User.IsInRole(role);
+
+    public bool HasPermission(string permission) =>
+        Permissions.Contains(permission, StringComparer.OrdinalIgnoreCase);
 }

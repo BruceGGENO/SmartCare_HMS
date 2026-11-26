@@ -1,4 +1,4 @@
-namespace SmartCare.Application.DTOs.Responses;
+﻿namespace SmartCare.Application.DTOs.Responses;
 
 public sealed class UserSummaryResponse
 {
@@ -9,4 +9,6 @@ public sealed class UserSummaryResponse
     public string DisplayName { get; init; } = string.Empty;
 
     public IReadOnlyList<string> Roles { get; init; } = [];
+
+    public IReadOnlyList<string> Permissions { get; init; } = [];
 }
