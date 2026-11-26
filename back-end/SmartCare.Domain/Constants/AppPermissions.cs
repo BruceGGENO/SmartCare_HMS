@@ -25,6 +25,10 @@ public static class AppPermissions
     public const string PortalPackagesRead = "portal.packages.read";
     public const string PortalOtpLogin = "portal.otp.login";
 
+    public const string BillingRead = "billing.read";
+    public const string BillingCreate = "billing.create";
+    public const string BillingPay = "billing.pay";
+
     public static readonly IReadOnlyList<string> All =
     [
         AuditRead,
@@ -41,6 +45,9 @@ public static class AppPermissions
         PortalAppointmentsRead,
         PortalHistoryRead,
         PortalPackagesRead,
-        PortalOtpLogin
+        PortalOtpLogin,
+        BillingRead,
+        BillingCreate,
+        BillingPay
     ];
 }
