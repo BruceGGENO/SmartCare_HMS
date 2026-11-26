@@ -25,6 +25,12 @@ public static class AppPermissions
     public const string PortalPackagesRead = "portal.packages.read";
     public const string PortalOtpLogin = "portal.otp.login";
 
+    public const string PatientsRead = "patients.read";
+    public const string PatientsRegister = "patients.register";
+    public const string PatientsClinicalRead = "patients.clinical.read";
+    public const string PatientsClinicalWrite = "patients.clinical.write";
+    public const string PatientsIcdRead = "patients.icd.read";
+
     public static readonly IReadOnlyList<string> All =
     [
         AuditRead,
@@ -41,6 +47,11 @@ public static class AppPermissions
         PortalAppointmentsRead,
         PortalHistoryRead,
         PortalPackagesRead,
-        PortalOtpLogin
+        PortalOtpLogin,
+        PatientsRead,
+        PatientsRegister,
+        PatientsClinicalRead,
+        PatientsClinicalWrite,
+        PatientsIcdRead
     ];
 }
