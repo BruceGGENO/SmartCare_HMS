@@ -38,3 +38,47 @@ Authorization: Bearer {{token}}
 ### Outbox (admin)
 GET {{SmartCare.API_HostAddress}}/api/auth/outbox
 Authorization: Bearer {{token}}
+
+### === Appointments (receptionist token) ===
+@apptToken = replace-with-receptionist-token
+
+### List patients
+GET {{SmartCare.API_HostAddress}}/api/appointments/patients
+Authorization: Bearer {{apptToken}}
+
+### List doctors
+GET {{SmartCare.API_HostAddress}}/api/appointments/doctors
+Authorization: Bearer {{apptToken}}
+
+### Book appointment
+POST {{SmartCare.API_HostAddress}}/api/appointments
+Authorization: Bearer {{apptToken}}
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "doctorUserId": "00000000-0000-0000-0000-000000000000",
+  "department": "General",
+  "scheduledAtUtc": "2026-12-01T09:00:00Z"
+}
+
+### Check in
+POST {{SmartCare.API_HostAddress}}/api/appointments/check-in
+Authorization: Bearer {{apptToken}}
+Content-Type: application/json
+
+{
+  "code": "ABCD1234"
+}
+
+### === Portal (patient token) ===
+@patientToken = replace-with-patient-token
+
+GET {{SmartCare.API_HostAddress}}/api/portal/appointments
+Authorization: Bearer {{patientToken}}
+
+GET {{SmartCare.API_HostAddress}}/api/portal/history
+Authorization: Bearer {{patientToken}}
+
+GET {{SmartCare.API_HostAddress}}/api/portal/packages
+Authorization: Bearer {{patientToken}}

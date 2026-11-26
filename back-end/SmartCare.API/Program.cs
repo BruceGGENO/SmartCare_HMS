@@ -1,8 +1,9 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Scalar.AspNetCore;
 using SmartCare.API.Extensions;
 using SmartCare.API.Security;
 using SmartCare.Application.Interfaces.Security;
+using SmartCare.Application.Interfaces.Services;
 using SmartCare.Application.Validators;
 using SmartCare.Infrastructure.Extensions;
 
@@ -27,6 +28,7 @@ if (app.Environment.IsDevelopment())
 
     using var scope = app.Services.CreateScope();
     await scope.ServiceProvider.GetRequiredService<IAuthService>().EnsureDemoUsersAsync();
+    await scope.ServiceProvider.GetRequiredService<IAppointmentService>().EnsureDemoDataAsync();
 }
 
 app.UseHttpsRedirection();
