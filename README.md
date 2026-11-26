@@ -1,8 +1,8 @@
-\# SmartCare Hospital Management System (HMS)
+# SmartCare Hospital Management System (HMS)
 
 
 
-\## Project Overview
+## Project Overview
 
 
 
@@ -10,65 +10,58 @@ SmartCare HMS is a full-stack web application designed to improve hospital opera
 
 
 
-\## Technology Stack
+## Technology Stack
 
 
 
-\- Front-end: React, JavaScript, CSS and Vite
+- Front-end: React, JavaScript, CSS and Vite
 
-\- Back-end: ASP.NET Core Web API and C#
+- Back-end: ASP.NET Core Web API and C#
 
-\- Database: Microsoft SQL Server
+- Database: Microsoft SQL Server
 
-\- Data Access: ADO.NET
+- Data Access: ADO.NET
 
-\- Architecture: Clean Architecture
+- Architecture: Clean Architecture
 
-\- Version Control: Git and GitHub
+- Version Control: Git and GitHub
 
-\- API Testing: Postman
+- API Testing: Postman
 
 
 
-\## Development Team
+## Development Team
 
 
 
 | Team Member | Responsibility |
-
 |---|---|
-
 | Mukunzi Jonathan | Team Leader and Back-end Lead |
-
 | Mugeni Raissa | Back-end Developer |
-
 | Geno Bruce | Front-end Lead |
-
 | Cyitatire Uwonizeye Arthur | Front-end Developer |
-
 | Ntarindwa Mugisha Elvin | Database Developer and QA Lead |
 
 
 
-\## Project Structure
+## Project Structure
 
 
 
-\- back-end/ — ASP.NET Core Web API
+- back-end/ — ASP.NET Core Web API
 
-\- front-end/ — React application
+- front-end/ — React application
 
-\- database/ — SQL scripts and database resources
+- database/ — SQL scripts and database resources
 
-\- docs/ — Project documentation
+- docs/ — Project documentation
 
-\- postman/ — API testing collections
+- postman/ — API testing collections
 
-\- .github/ — GitHub workflows
+- .github/ — GitHub workflows
 
 
-
-\## Project Status
+## Project Status
 
 
 
