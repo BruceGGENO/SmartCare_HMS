@@ -84,6 +84,14 @@ public sealed class AuthService : IAuthService
             cancellationToken);
 
         user.Roles = roles;
+
+        var permissions = await _sql.QueryAsync(
+            "dbo.sp_GetUserPermissions",
+            r => r.Get<string>("PermissionCode"),
+            new Dictionary<string, object?> { ["UserId"] = user.UserId },
+            cancellationToken);
+        user.Permissions = permissions;
+
         return user;
     }
 

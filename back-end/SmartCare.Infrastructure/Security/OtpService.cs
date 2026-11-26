@@ -65,8 +65,8 @@ public sealed class OtpService : IOtpService
         if (user is null || !user.IsActive)
             return LoginResult.Fail("Invalid username or code.");
 
-        if (!user.Roles.Contains(AppRoles.Patient, StringComparer.OrdinalIgnoreCase))
-            return LoginResult.Fail("OTP login is for patient accounts only.");
+        if (!user.Permissions.Contains(AppPermissions.PortalOtpLogin, StringComparer.OrdinalIgnoreCase))
+            return LoginResult.Fail("OTP login is not allowed for this account.");
 
         var rows = await _sql.QueryAsync(
             "dbo.sp_GetLatestOpenOtp",

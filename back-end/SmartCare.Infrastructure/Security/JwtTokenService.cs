@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SmartCare.Application.Interfaces.Security;
+using SmartCare.Domain.Constants;
 using SmartCare.Infrastructure.Configurations;
 
 namespace SmartCare.Infrastructure.Security;
@@ -33,8 +34,12 @@ public sealed class JwtTokenService : IJwtTokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N"))
         };
 
+        // Roles stay in the token for UI display; authorization uses permissions.
         foreach (var role in user.Roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
+
+        foreach (var permission in user.Permissions.Distinct(StringComparer.OrdinalIgnoreCase))
+            claims.Add(new Claim(AppPermissions.ClaimType, permission));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

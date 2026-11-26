@@ -1,4 +1,4 @@
-namespace SmartCare.Application.Interfaces.Security;
+﻿namespace SmartCare.Application.Interfaces.Security;
 
 public sealed class AuthUser
 {
@@ -19,4 +19,6 @@ public sealed class AuthUser
     public string PasswordSalt { get; set; } = string.Empty;
 
     public IReadOnlyList<string> Roles { get; set; } = [];
+
+    public IReadOnlyList<string> Permissions { get; set; } = [];
 }
