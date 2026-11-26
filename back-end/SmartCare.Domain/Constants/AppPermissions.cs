@@ -39,33 +39,39 @@ public static class AppPermissions
     public const string RevenuePurchase = "revenue.purchase";
     public const string RevenueConsume = "revenue.consume";
 
+    public const string LabRead = "lab.read";
+    public const string LabOrder = "lab.order";
+    public const string LabResult = "lab.result";
+
+    public const string PharmacyRead = "pharmacy.read";
+    public const string PharmacyPrescribe = "pharmacy.prescribe";
+    public const string PharmacyDispense = "pharmacy.dispense";
+
+    public const string BedsRead = "beds.read";
+    public const string BedsAssign = "beds.assign";
+
+    public const string DischargeRead = "discharge.read";
+    public const string DischargeWrite = "discharge.write";
+
+    public const string WaitingRead = "waiting.read";
+    public const string WaitingManage = "waiting.manage";
+
+    public const string ForecastRead = "forecast.read";
+
     public static readonly IReadOnlyList<string> All =
     [
-        AuditRead,
-        OutboxRead,
-        DocumentsUpload,
-        DocumentsRead,
-        AppointmentsRead,
-        AppointmentsBook,
-        AppointmentsReschedule,
-        AppointmentsCancel,
-        AppointmentsCheckIn,
-        AppointmentsPatientsRead,
-        AppointmentsDoctorsRead,
-        PortalAppointmentsRead,
-        PortalHistoryRead,
-        PortalPackagesRead,
-        PortalOtpLogin,
-        PatientsRead,
-        PatientsRegister,
-        PatientsClinicalRead,
-        PatientsClinicalWrite,
-        PatientsIcdRead,
-        BillingRead,
-        BillingCreate,
-        BillingPay,
-        RevenueRead,
-        RevenuePurchase,
-        RevenueConsume
+        AuditRead, OutboxRead, DocumentsUpload, DocumentsRead,
+        AppointmentsRead, AppointmentsBook, AppointmentsReschedule, AppointmentsCancel,
+        AppointmentsCheckIn, AppointmentsPatientsRead, AppointmentsDoctorsRead,
+        PortalAppointmentsRead, PortalHistoryRead, PortalPackagesRead, PortalOtpLogin,
+        PatientsRead, PatientsRegister, PatientsClinicalRead, PatientsClinicalWrite, PatientsIcdRead,
+        BillingRead, BillingCreate, BillingPay,
+        RevenueRead, RevenuePurchase, RevenueConsume,
+        LabRead, LabOrder, LabResult,
+        PharmacyRead, PharmacyPrescribe, PharmacyDispense,
+        BedsRead, BedsAssign,
+        DischargeRead, DischargeWrite,
+        WaitingRead, WaitingManage,
+        ForecastRead
     ];
 }
