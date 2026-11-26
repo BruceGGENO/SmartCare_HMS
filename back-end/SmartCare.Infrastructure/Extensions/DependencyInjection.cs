@@ -30,7 +30,15 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAppointmentService, AppointmentService>();
         services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IPaymentGateway, PaymentGatewayStub>();
+        services.AddScoped<IBillingService, BillingService>();
         services.AddScoped<IRevenueService, RevenueService>();
+        services.AddScoped<ILabService, LabService>();
+        services.AddScoped<IPharmacyService, PharmacyService>();
+        services.AddScoped<IBedService, BedService>();
+        services.AddScoped<IDischargeService, DischargeService>();
+        services.AddScoped<IWaitingService, WaitingService>();
+        services.AddScoped<IForecastService, ForecastService>();
         services.AddScoped<IAuditLogger, AuditLogger>();
 
         return services;
