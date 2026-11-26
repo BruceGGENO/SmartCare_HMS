@@ -520,3 +520,5 @@ appsettings.Production.Local.json
 # Local database exports
 /database/backups/
 /database/exports/
+# Machine-specific SQL / JWT overrides — copy from the .example file locally.
+back-end/SmartCare.API/appsettings.Development.json

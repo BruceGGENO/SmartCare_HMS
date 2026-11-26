@@ -1,0 +1,17 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=SmartCareHMS_YourName;Trusted_Connection=True;TrustServerCertificate=True"
+  },
+  "Jwt": {
+    "Issuer": "SmartCare.API",
+    "Audience": "SmartCare.Clients",
+    "SigningKey": "SmartCare-Dev-Only-Signing-Key-Change-In-Prod-32+",
+    "AccessTokenMinutes": 480
+  }
+}
