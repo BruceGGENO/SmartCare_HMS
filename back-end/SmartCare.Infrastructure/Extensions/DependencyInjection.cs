@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartCare.Application.Interfaces.Infrastructure;
 using SmartCare.Application.Interfaces.Security;
 using SmartCare.Application.Interfaces.Services;
+using SmartCare.Infrastructure.Auditing;
 using SmartCare.Infrastructure.Configurations;
 using SmartCare.Infrastructure.Data;
 using SmartCare.Infrastructure.Security;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAppointmentService, AppointmentService>();
+        services.AddScoped<IAuditLogger, AuditLogger>();
 
         return services;
     }

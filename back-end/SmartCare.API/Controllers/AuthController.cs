@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartCare.Application.DTOs.Requests;
 using SmartCare.Application.DTOs.Responses;
 using SmartCare.Application.Interfaces.Security;
+using SmartCare.Application.Interfaces.Services;
 using SmartCare.Domain.Constants;
 
 namespace SmartCare.API.Controllers;
@@ -17,6 +18,7 @@ public sealed class AuthController : ControllerBase
     private readonly IJwtTokenService _tokens;
     private readonly ICurrentUser _currentUser;
     private readonly IWebHostEnvironment _env;
+    private readonly IAuditLogger _audit;
     private readonly IValidator<LoginRequest> _loginValidator;
     private readonly IValidator<OtpRequest> _otpRequestValidator;
     private readonly IValidator<OtpLoginRequest> _otpLoginValidator;
@@ -27,6 +29,7 @@ public sealed class AuthController : ControllerBase
         IJwtTokenService tokens,
         ICurrentUser currentUser,
         IWebHostEnvironment env,
+        IAuditLogger audit,
         IValidator<LoginRequest> loginValidator,
         IValidator<OtpRequest> otpRequestValidator,
         IValidator<OtpLoginRequest> otpLoginValidator)
@@ -36,6 +39,7 @@ public sealed class AuthController : ControllerBase
         _tokens = tokens;
         _currentUser = currentUser;
         _env = env;
+        _audit = audit;
         _loginValidator = loginValidator;
         _otpRequestValidator = otpRequestValidator;
         _otpLoginValidator = otpLoginValidator;
@@ -52,7 +56,15 @@ public sealed class AuthController : ControllerBase
         if (!validation.IsValid)
             return BadRequest(new ApiMessageResponse { Message = string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)) });
 
-        var result = await _auth.LoginAsync(request.UserName, request.Password, cancellationToken);
+                var result = await _auth.LoginAsync(request.UserName, request.Password, cancellationToken);
+        await _audit.LogAsync(new AuditEvent
+        {
+            Action = "Auth.Login",
+            EntityType = "User",
+            EntityId = result.User?.UserId.ToString() ?? request.UserName,
+            ActorUserId = result.User?.UserId.ToString() ?? request.UserName,
+            Outcome = result.Succeeded ? "Success:Password" : (result.IsLockedOut ? "Failure:Locked" : "Failure:Password")
+        }, cancellationToken);
         if (!result.Succeeded || result.User is null)
         {
             var status = result.IsLockedOut ? StatusCodes.Status423Locked : StatusCodes.Status401Unauthorized;
@@ -92,7 +104,15 @@ public sealed class AuthController : ControllerBase
         if (!validation.IsValid)
             return BadRequest(new ApiMessageResponse { Message = string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)) });
 
-        var result = await _otp.LoginWithOtpAsync(request.UserName, request.Code, cancellationToken);
+                var result = await _otp.LoginWithOtpAsync(request.UserName, request.Code, cancellationToken);
+        await _audit.LogAsync(new AuditEvent
+        {
+            Action = "Auth.Login",
+            EntityType = "User",
+            EntityId = result.User?.UserId.ToString() ?? request.UserName,
+            ActorUserId = result.User?.UserId.ToString() ?? request.UserName,
+            Outcome = result.Succeeded ? "Success:OTP" : "Failure:OTP"
+        }, cancellationToken);
         if (!result.Succeeded || result.User is null)
             return Unauthorized(new ApiMessageResponse { Message = result.Error });
 

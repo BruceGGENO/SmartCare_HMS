@@ -522,3 +522,7 @@ appsettings.Production.Local.json
 /database/exports/
 # Machine-specific SQL / JWT overrides — copy from the .example file locally.
 back-end/SmartCare.API/appsettings.Development.json
+
+# Local uploaded documents (PHI) — never commit
+back-end/SmartCare.API/App_Data/uploads/**
+!back-end/SmartCare.API/App_Data/uploads/.gitkeep

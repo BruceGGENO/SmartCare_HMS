@@ -16,6 +16,7 @@ public sealed class AppointmentsController : ControllerBase
 {
     private readonly IAppointmentService _appointments;
     private readonly ICurrentUser _currentUser;
+    private readonly IAuditLogger _audit;
     private readonly IValidator<BookAppointmentRequest> _bookValidator;
     private readonly IValidator<RescheduleAppointmentRequest> _rescheduleValidator;
     private readonly IValidator<CancelAppointmentRequest> _cancelValidator;
@@ -24,6 +25,7 @@ public sealed class AppointmentsController : ControllerBase
     public AppointmentsController(
         IAppointmentService appointments,
         ICurrentUser currentUser,
+        IAuditLogger audit,
         IValidator<BookAppointmentRequest> bookValidator,
         IValidator<RescheduleAppointmentRequest> rescheduleValidator,
         IValidator<CancelAppointmentRequest> cancelValidator,
@@ -31,6 +33,7 @@ public sealed class AppointmentsController : ControllerBase
     {
         _appointments = appointments;
         _currentUser = currentUser;
+        _audit = audit;
         _bookValidator = bookValidator;
         _rescheduleValidator = rescheduleValidator;
         _cancelValidator = cancelValidator;
@@ -83,12 +86,21 @@ public sealed class AppointmentsController : ControllerBase
 
         try
         {
-            var booked = await _appointments.BookAsync(
+                        var booked = await _appointments.BookAsync(
                 request.PatientId,
                 request.DoctorUserId,
                 request.Department.Trim(),
                 request.ScheduledAtUtc,
                 cancellationToken);
+
+            await _audit.LogAsync(new AuditEvent
+            {
+                Action = "Appointment.Create",
+                EntityType = "Appointment",
+                EntityId = booked.Id.ToString(),
+                ActorUserId = _currentUser.UserId,
+                Outcome = "Success"
+            }, cancellationToken);
 
             return CreatedAtAction(nameof(GetById), new { id = booked.Id }, booked);
         }
@@ -144,7 +156,15 @@ public sealed class AppointmentsController : ControllerBase
         if (await _appointments.GetByIdAsync(id, cancellationToken) is null)
             return NotFound();
 
-        await _appointments.CancelAsync(id, request.Reason.Trim(), cancellationToken);
+                await _appointments.CancelAsync(id, request.Reason.Trim(), cancellationToken);
+        await _audit.LogAsync(new AuditEvent
+        {
+            Action = "Appointment.Cancel",
+            EntityType = "Appointment",
+            EntityId = id.ToString(),
+            ActorUserId = _currentUser.UserId,
+            Outcome = "Success"
+        }, cancellationToken);
         return Ok(new ApiMessageResponse { Message = "Appointment cancelled. The slot is free." });
     }
 
@@ -159,9 +179,18 @@ public sealed class AppointmentsController : ControllerBase
         if (!validation.IsValid)
             return BadRequest(new ApiMessageResponse { Message = string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)) });
 
-        var item = await _appointments.CheckInAsync(request.Code, cancellationToken);
+                var item = await _appointments.CheckInAsync(request.Code, cancellationToken);
         if (item is null)
             return NotFound(new ApiMessageResponse { Message = "Code not found, already used, or expired booking." });
+
+        await _audit.LogAsync(new AuditEvent
+        {
+            Action = "Appointment.CheckIn",
+            EntityType = "Appointment",
+            EntityId = item.Id.ToString(),
+            ActorUserId = _currentUser.UserId,
+            Outcome = "Success"
+        }, cancellationToken);
 
         return Ok(item);
     }

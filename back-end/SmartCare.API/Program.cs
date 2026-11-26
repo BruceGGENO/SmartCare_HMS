@@ -1,11 +1,15 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Scalar.AspNetCore;
 using SmartCare.API.Extensions;
+using SmartCare.API.Middleware;
 using SmartCare.API.Security;
+using SmartCare.Application.Interfaces.Infrastructure;
 using SmartCare.Application.Interfaces.Security;
 using SmartCare.Application.Interfaces.Services;
 using SmartCare.Application.Validators;
+using SmartCare.Infrastructure.Data;
 using SmartCare.Infrastructure.Extensions;
+using SmartCare.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +23,14 @@ builder.Services.AddSmartCareInfrastructure(builder.Configuration);
 builder.Services.AddSmartCareAuthentication(builder.Configuration);
 builder.Services.AddSmartCareCors(builder.Configuration);
 
+var uploadsRoot = Path.Combine(
+    builder.Environment.ContentRootPath,
+    builder.Configuration.GetValue("FileStorage:RootPath", "App_Data/uploads")!);
+var maxFileBytes = builder.Configuration.GetValue("FileStorage:MaxFileBytes", 5 * 1024 * 1024);
+Directory.CreateDirectory(uploadsRoot);
+builder.Services.AddScoped<IFileStorage>(sp =>
+    new LocalFileStorage(sp.GetRequiredService<ISqlExecutor>(), uploadsRoot, maxFileBytes));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,6 +43,7 @@ if (app.Environment.IsDevelopment())
     await scope.ServiceProvider.GetRequiredService<IAppointmentService>().EnsureDemoDataAsync();
 }
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(AuthenticationExtensions.CorsPolicyName);
 app.UseAuthentication();
