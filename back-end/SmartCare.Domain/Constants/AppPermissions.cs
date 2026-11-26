@@ -31,6 +31,10 @@ public static class AppPermissions
     public const string PatientsClinicalWrite = "patients.clinical.write";
     public const string PatientsIcdRead = "patients.icd.read";
 
+    public const string RevenueRead = "revenue.read";
+    public const string RevenuePurchase = "revenue.purchase";
+    public const string RevenueConsume = "revenue.consume";
+
     public static readonly IReadOnlyList<string> All =
     [
         AuditRead,
@@ -52,6 +56,9 @@ public static class AppPermissions
         PatientsRegister,
         PatientsClinicalRead,
         PatientsClinicalWrite,
-        PatientsIcdRead
+        PatientsIcdRead,
+        RevenueRead,
+        RevenuePurchase,
+        RevenueConsume
     ];
 }
