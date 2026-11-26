@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAppointmentService, AppointmentService>();
+        services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IAuditLogger, AuditLogger>();
 
         return services;
